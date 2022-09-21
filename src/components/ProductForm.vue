@@ -9,7 +9,7 @@ import { useRouter, useRoute } from "vue-router";
 import * as dayjs from "dayjs";
 
 // Get methods and object from store
-const { hexabase, addProducts, findProduct, updateProduct } =
+const { hexabase, addProducts, findProduct, updateProduct, removeProduct } =
   useHexabaseClient();
 // For routing
 const router = useRouter();
@@ -185,6 +185,27 @@ const add = async () => {
 };
 
 /**
+ * Delete product
+ */
+const deleteProduct = async () => {
+  // Delete product
+  const { error } = await hexabase.items.delete(
+    config.applicationId,
+    config.datastoreId,
+    route.params.id as string,
+    { a_id: ruleForm.p_id! }
+  );
+  // If error, show error message
+  if (error) {
+    return showMessage("error", error as string, 10000);
+  }
+  // Delete product from store
+  removeProduct(route.params.id as string);
+  // Redirect to product list page
+  router.push("/");
+};
+
+/**
  * Reset form
  */
 const resetForm = (formEl: FormInstance | undefined) => {
@@ -213,11 +234,9 @@ const onBack = () => {
         </el-page-header>
       </el-header>
       <el-main>
-        <el-alert
-          v-show="message.title !== ''"
-          :title="message.title"
-          :type="message.type"
-        />
+        <div v-if="message.title !== ''">
+          <el-alert :title="message.title" :type="message.type" />
+        </div>
         <el-form
           ref="ruleFormRef"
           :model="ruleForm"
@@ -249,12 +268,23 @@ const onBack = () => {
               autocomplete="off"
             />
           </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="submitForm(ruleFormRef)">
-              Save product
-            </el-button>
-            <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
-          </el-form-item>
+          <el-row>
+            <el-col :span="24">
+              <el-form-item>
+                <el-button type="primary" @click="submitForm(ruleFormRef)">
+                  Save product
+                </el-button>
+                <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item>
+                <el-button type="danger" @click="deleteProduct">
+                  Delete product
+                </el-button>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-form>
       </el-main>
     </el-container>

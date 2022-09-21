@@ -99,6 +99,15 @@ export const useHexabaseClient = defineStore("hexabase", () => {
     const index = products.value.findIndex((p) => p.i_id === i_id);
     products.value[index] = product;
   });
+
+  /**
+   * Remove product by i_id
+   */
+  const removeProduct = ref((i_id: string) => {
+    const index = products.value.findIndex((p) => p.i_id === i_id);
+    products.value.splice(index, 1);
+  });
+  
   return {
     hexabase,
     setToken,
@@ -106,6 +115,7 @@ export const useHexabaseClient = defineStore("hexabase", () => {
     getProducts,
     findProduct,
     updateProduct,
+    removeProduct,
     products,
   };
 });
